@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIPAKAR - Sistem Informasi Pengelolaan Anggaran & Kas RT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #066b46;
+            --primary-light: #e6f4ef;
+            --primary-dark: #044a30;
+            --text-main: #1a1a1a;
+            --text-muted: #666666;
+            --bg-body: #f3fcf7;
+            --bg-card: #ffffff;
+            --danger: #d32f2f;
+            --danger-bg: #ffebee;
+            --warning: #f57c00;
+            --warning-bg: #fff3e0;
+            --success: #2e7d32;
+            --success-bg: #e8f5e9;
+            --border-color: #e0e0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: var(--bg-body);
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 80px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: var(--bg-body);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo-icon { width: 40px; height: 40px; background-color: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; }
+        .logo-text { font-weight: 800; font-size: 18px; color: var(--text-main); }
+        .logo-sub { font-size: 10px; color: var(--text-muted); display: block; margin-top: -3px; }
+        .header-icons { display: flex; gap: 15px; align-items: center; }
+
+        .icon-btn { background: none; border: none; font-size: 20px; color: var(--text-main); cursor: pointer; position: relative; transition: 0.2s; }
+        .icon-btn:hover { color: var(--primary); }
+        .badge { position: absolute; top: -5px; right: -5px; background-color: var(--danger); color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; font-weight: bold; }
+        .avatar { width: 35px; height: 35px; background-color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
+
+        main { padding: 20px; display: none; animation: fadeIn 0.3s ease; }
+        main.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { font-size: 28px; font-weight: 800; margin-bottom: 5px; }
+        h2 { font-size: 20px; font-weight: 700; margin-bottom: 15px; }
+        h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; }
+        p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+        .text-danger { color: var(--danger); }
+        .text-success { color: var(--success); }
+        .text-primary { color: var(--primary); }
+
+        .card { background-color: var(--bg-card); border-radius: 16px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 12px 20px; border-radius: 12px; font-weight: 600; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; gap: 8px; text-decoration: none; }
+        .btn-primary { background-color: var(--primary); color: white; width: 100%; }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+        .btn-outline { background-color: transparent; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background-color: var(--primary-light); }
+        .btn-sm { padding: 8px 15px; font-size: 12px; border-radius: 8px; }
+
+        /* Beranda */
+        .greeting { margin-bottom: 20px; }
+        .bill-card { background: linear-gradient(135deg, #ffffff 0%, #f0faf5 100%); border: 1px solid var(--primary-light); padding: 24px; border-radius: 16px; margin-bottom: 25px; }
+        .bill-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .bill-icon { width: 40px; height: 40px; background: var(--primary-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+        .bill-amount { font-size: 32px; font-weight: 800; margin: 10px 0; }
+        .bill-details { background: #f8fbf9; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .bill-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; font-size: 14px; border-bottom: 1px solid var(--border-color); }
+        .bill-item:last-child { border-bottom: none; }
+        .bill-item-left { display: flex; align-items: center; gap: 10px; }
+
+        .quick-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .menu-item { background: white; padding: 20px; border-radius: 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .menu-item:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+        .menu-icon { width: 50px; height: 50px; background: var(--primary-light); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px; }
+        .menu-text { font-weight: 600; font-size: 13px; }
+
+        .notif-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .notif-card { display: flex; gap: 15px; padding: 15px; background: white; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .notif-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .notif-icon.danger { background: var(--danger-bg); color: var(--danger); }
+        .notif-icon.success { background: var(--success-bg); color: var(--success); }
+        .notif-icon.primary { background: var(--primary-light); color: var(--primary); }
+        .notif-content p { font-size: 13px; color: var(--text-main); margin-bottom: 5px; }
+        .notif-time { font-size: 11px; color: var(--text-muted); text-align: right; display: block; }
+
+        .umkm-card { display: flex; gap: 15px; background: white; padding: 15px; border-radius: 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .umkm-img { width: 100px; height: 100px; border-radius: 12px; object-fit: cover; }
+        .umkm-info { flex: 1; }
+        .badge-kategori { background: var(--primary-light); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; margin-bottom: 8px; }
+
+        /* Iuran */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .tab { padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: white; color: var(--text-muted); font-size: 13px; cursor: pointer; font-weight: 500; white-space: nowrap; }
+        .tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .qr-container { display: flex; flex-direction: column; align-items: center; padding: 20px; background: white; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 20px; }
+        .qr-code { width: 200px; height: 200px; background: #f0f0f0; margin: 15px 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 2px dashed #ccc; color: #999; }
+        .upload-area { border: 2px dashed var(--primary); background: var(--primary-light); padding: 30px; border-radius: 12px; text-align: center; cursor: pointer; margin-bottom: 15px; transition: 0.2s; }
+        .upload-area:hover { background: #d4ece1; }
+        .upload-area.active { border-color: var(--success); background: var(--success-bg); }
+
+        /* Pengaduan */
+        .stepper { display: flex; justify-content: space-between; position: relative; margin-bottom: 30px; padding: 0 10px; }
+        .stepper::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 2px; background: var(--border-color); z-index: 1; }
+        .step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .step-circle { width: 30px; height: 30px; border-radius: 50%; background: white; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-muted); }
+        .step.active .step-circle { background: var(--primary); border-color: var(--primary); color: white; }
+        .step.done .step-circle { background: var(--primary); border-color: var(--primary); color: white; }
+        .step-text { font-size: 11px; font-weight: 500; text-align: center; }
+        .complaint-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .complaint-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .complaint-tag { background: var(--primary-light); color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .complaint-date { font-size: 12px; color: var(--text-muted); }
+        .complaint-img { width: 100%; height: 150px; border-radius: 12px; object-fit: cover; margin: 10px 0; }
+        .complaint-response { background: #f8fbf9; padding: 15px; border-radius: 12px; margin-top: 15px; border-left: 4px solid var(--primary); }
+
+        /* UMKM */
+        .umkm-grid { display: flex; flex-direction: column; gap: 20px; }
+        .umkm-large-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .umkm-large-img { width: 100%; height: 200px; object-fit: cover; }
+        .umkm-large-content { padding: 20px; }
+
+        /* Profil */
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text-muted); }
+        .form-input { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 10px; font-size: 14px; outline: none; transition: 0.2s; background: white; }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+
+        /* Login */
+        .auth-container { display: flex; flex-direction: column; justify-content: center; min-height: 80vh; max-width: 400px; margin: 0 auto; }
+        .auth-logo { text-align: center; margin-bottom: 30px; }
+        .auth-title { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+        .auth-subtitle { font-size: 14px; color: var(--text-muted); margin-bottom: 30px; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 1200px; background-color: #ffffff; display: flex; justify-content: space-around; padding: 10px 0 15px 0; border-top: 1px solid var(--border-color); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; color: var(--text-muted); text-decoration: none; font-size: 11px; font-weight: 500; cursor: pointer; transition: 0.2s; flex: 1; }
+        .nav-item i { font-size: 20px; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item:hover { color: var(--primary); }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 16px; padding: 25px; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* Desktop */
+        @media (min-width: 768px) {
+            .app-container { margin: 20px 0; border-radius: 20px; min-height: calc(100vh - 40px); padding-bottom: 0; overflow: hidden; }
+            .bottom-nav { position: sticky; bottom: 20px; border-radius: 20px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto; border: none; }
+            main { padding: 30px 50px; }
+            .quick-menu { grid-template-columns: repeat(4, 1fr); }
+            .umkm-grid { display: grid; grid-template-columns: 1fr 1fr; }
+            .bill-details { width: 50%; }
+            .auth-container { max-width: 450px; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-top: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <header id="main-header" style="display: none;">
+        <div class="logo-container" onclick="navigate('beranda')">
+            <div class="logo-icon"><i class="fa-solid fa-house-chimney"></i></div>
+            <div>
+                <div class="logo-text">SIPAKAR</div>
+                <div class="logo-sub">Sistem Informasi Pengelolaan Anggaran & Kas RT</div>
+            </div>
+        </div>
+        <div class="header-icons">
+            <button class="icon-btn" onclick="navigate('notifikasi')">
+                <i class="fa-regular fa-bell"></i>
+                <span class="badge" id="notif-badge">2</span>
+            </button>
+            <div class="avatar" onclick="navigate('profil')" id="header-avatar">A</div>
+        </div>
+    </header>
+
+    <!-- LOGIN -->
+    <main id="page-login" class="active">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <div class="logo-icon" style="margin: 0 auto 15px auto; width: 60px; height: 60px; font-size: 30px;"><i class="fa-solid fa-house-chimney"></i></div>
+                <h1 class="auth-title">Selamat Datang Kembali!</h1>
+                <p class="auth-subtitle">Masuk Untuk Mengakses Layanan RT</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nama Pengguna / Nomor HP</label>
+                <div style="position: relative;">
+                    <i class="fa-regular fa-user" style="position: absolute; left: 15px; top: 14px; color: #999;"></i>
+                    <input type="text" id="login-name" class="form-input" placeholder="Contoh: zhaafira" style="padding-left: 45px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-lock" style="position: absolute; left: 15px; top: 14px; color: #999;"></i>
+                    <input type="password" id="login-pass" class="form-input" placeholder="Password" style="padding-left: 45px;">
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; font-size: 13px;">
+                <label><input type="checkbox"> Ingat saya</label>
+                <a href="#" style="color: var(--primary); text-decoration: none; font-weight: 600;">Lupa Password?</a>
+            </div>
+            <button id="btn-login" class="btn btn-primary" onclick="login()">Masuk</button>
+            <p style="text-align: center; margin-top: 20px; font-size: 14px;">
+                Belum punya akun? <a href="#" onclick="navigate('daftar')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Daftar</a>
+            </p>
+        </div>
+    </main>
+
+    <!-- DAFTAR -->
+    <main id="page-daftar">
+        <div class="auth-container">
+            <div class="auth-logo">
+                <div class="logo-icon" style="margin: 0 auto 15px auto; width: 60px; height: 60px; font-size: 30px;"><i class="fa-solid fa-house-chimney"></i></div>
+                <h1 class="auth-title">Buat Akun</h1>
+                <p class="auth-subtitle">Lengkapi data diri untuk bergabung sebagai warga</p>
+            </div>
+            <div class="form-group">
+                <div style="position: relative;">
+                    <i class="fa-regular fa-user" style="position: absolute; left: 15px; top: 14px; color: #999;"></i>
+                    <input type="text" id="reg-name" class="form-input" placeholder="Nama Lengkap" style="padding-left: 45px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <div style="position: relative;">
+                    <i class="fa-solid fa-hashtag" style="position: absolute; left: 15px; top: 14px; color: #999;"></i>
+                    <input type="text" class="form-input" placeholder="Nomor Kartu Keluarga" style="padding-left: 45px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <div style="position: relative;">
+                    <i class="fa-solid fa-house" style="position: absolute; left: 15px; top: 14px; color: #999;"></i>
+                    <input type="text" class="form-input" placeholder="Alamat Lengkap" style="padding-left: 45px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <div style="position: relative;">
+                    <i class="fa-solid fa-door-open" style="position: absolute; left: 15px; top: 14px; color: #999;"></i>
+                    <input type="text" class="form-input" placeholder="Nomor Rumah" style="padding-left: 45px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <div style="position: relative;">
+                    <i class="fa-solid fa-mobile-screen" style="position: absolute; left: 15px; top: 14px; color: #999;"></i>
+                    <input type="text" class="form-input" placeholder="Nomor HP" style="padding-left: 45px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <div style="position: relative;">
+                    <i class="fa-solid fa-lock" style="position: absolute; left: 15px; top: 14px; color: #999;"></i>
+                    <input type="password" class="form-input" placeholder="Password" style="padding-left: 45px;">
+                </div>
+            </div>
+            <button id="btn-register" class="btn btn-primary" onclick="register()">Daftar Akun</button>
+            <p style="text-align: center; margin-top: 20px; font-size: 14px;">
+                Sudah Punya Akun? <a href="#" onclick="navigate('login')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Masuk</a>
+            </p>
+        </div>
+    </main>
+
+    <!-- BERANDA -->
+    <main id="page-beranda">
+        <div class="greeting">
+            <h1>Selamat datang, <span id="user-name-display">Warga</span>!</h1>
+            <p>Warga RT 05 / RW 02, Blok C No. 12</p>
+        </div>
+        <div class="bill-card">
+            <div class="bill-header">
+                <div class="bill-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div style="text-align: right;">
+                    <span class="text-danger" style="font-weight: 600; font-size: 14px;">2 Tagihan</span>
+                </div>
+            </div>
+            <p style="font-size: 12px; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">TOTAL TAGIHAN BELUM DIBAYAR</p>
+            <div class="bill-amount">Rp 30.000</div>
+            <p style="margin-bottom: 15px;">Periode September 2026</p>
+            <div class="bill-details">
+                <div class="bill-item">
+                    <div class="bill-item-left"><i class="fa-regular fa-circle-xmark text-danger"></i> Kas RT</div>
+                    <div><strong>Rp 10.000</strong> <span class="text-danger" style="font-size: 12px; margin-left: 5px;">Belum Dibayar</span></div>
+                </div>
+                <div class="bill-item">
+                    <div class="bill-item-left"><i class="fa-regular fa-circle-xmark text-danger"></i> Kebersihan</div>
+                    <div><strong>Rp 20.000</strong> <span class="text-danger" style="font-size: 12px; margin-left: 5px;">Belum Dibayar</span></div>
+                </div>
+                <div class="bill-item">
+                    <div class="bill-item-left"><i class="fa-regular fa-circle-check text-success"></i> Keamanan</div>
+                    <div><strong>Rp 15.000</strong> <span class="text-success" style="font-size: 12px; margin-left: 5px;">Lunas</span></div>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="navigate('iuran')">Lihat Detail dan Bayar Sekarang <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <h2>Menu Cepat</h2>
+        <div class="quick-menu">
+            <div class="menu-item" onclick="navigate('iuran')">
+                <div class="menu-icon"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div class="menu-text">Bayar Iuran</div>
+            </div>
+            <div class="menu-item" onclick="navigate('pengaduan')">
+                <div class="menu-icon"><i class="fa-solid fa-bullhorn"></i></div>
+                <div class="menu-text">Buat Aduan</div>
+            </div>
+        </div>
+
+        <div class="notif-header">
+            <h2><i class="fa-regular fa-bell"></i> Pemberitahuan Terkini</h2>
+            <a href="#" onclick="navigate('notifikasi')" style="font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 600;">Lihat Semua</a>
+        </div>
+        <div class="notif-card">
+            <div class="notif-icon danger"><i class="fa-solid fa-clock"></i></div>
+            <div class="notif-content">
+                <p>Batas pembayaran iuran kebersihan & keamanan tinggal 5 hari lagi untuk periode September.</p>
+                <span class="notif-time">Hari ini</span>
+            </div>
+        </div>
+        <div class="notif-card">
+            <div class="notif-icon success"><i class="fa-solid fa-check"></i></div>
+            <div class="notif-content">
+                <p>Lampu jalan gang 3 telah selesai diperbaiki oleh tim sarpras RT 05. Terima kasih laporannya!</p>
+                <span class="notif-time">Kemarin</span>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 25px;">Pojok Usaha Warga RT 05</h2>
+        <p style="margin-bottom: 15px;">Dukung usaha tetangga dan ekonomi warga</p>
+        <div class="umkm-card" onclick="navigate('umkm')" style="cursor: pointer;">
+            <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80" alt="Brownies" class="umkm-img">
+            <div class="umkm-info">
+                <span class="badge-kategori">Kuliner Warga</span>
+                <h3>Brownies Bu Siti</h3>
+                <p style="font-size: 12px; margin-bottom: 10px;">Camilan lezat, fudgy & higienis untuk keluarga santai di...</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p style="font-size: 10px; margin: 0;">Kontak WA</p>
+                        <strong style="font-size: 13px;">0812-9844-xxxx</strong>
+                    </div>
+                    <button class="btn btn-primary btn-sm">Lihat Promosi <i class="fa-solid fa-arrow-up-right-from-square"></i></button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- IURAN -->
+    <main id="page-iuran">
+        <div style="margin-bottom: 20px;">
+            <p style="font-size: 12px; font-weight: 600; color: var(--primary);">SIPAKAR KEUANGAN</p>
+            <h1 style="font-size: 24px;">Pembayaran Iuran Warga</h1>
+            <p>RT 05 / RW 02 - Hunian Asri Mandiri</p>
+        </div>
+        <div class="tabs">
+            <div class="tab active">Tagihan Aktif 1</div>
+            <div class="tab">Riwayat Pembayaran</div>
+        </div>
+        <div class="card" style="background: var(--primary-light); border: none; display: flex; gap: 15px; align-items: flex-start;">
+            <i class="fa-solid fa-shield-halved" style="color: var(--primary); font-size: 20px; margin-top: 3px;"></i>
+            <div>
+                <strong style="font-size: 14px; color: var(--primary);">Gotong Royong Lingkungan</strong>
+                <p style="font-size: 12px; color: var(--primary-dark); margin-top: 5px;">Iuran bulanan menjaga kebersihan berkelanjutan, siskamling malam, dan kenyamanan seluruh warga RT 05.</p>
+            </div>
+        </div>
+        <div class="card" style="border-left: 4px solid var(--warning);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3>Iuran Kebersihan & Keamanan</h3>
+                <span class="badge-kategori" style="background: var(--danger-bg); color: var(--danger);">BELUM BAYAR</span>
+            </div>
+            <p style="font-size: 12px; margin-bottom: 15px;">September 2026</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; margin-bottom: 15px;">
+                <div>
+                    <p style="margin: 0; font-size: 11px;">Periode Tagihan</p>
+                    <strong>1 - 30 September 2026</strong>
+                </div>
+                <div>
+                    <p style="margin: 0; font-size: 11px;">Batas Waktu Bayar</p>
+                    <strong class="text-danger">30 September 2026</strong>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border-color); padding-top: 15px;">
+                <span style="font-weight: 600;">Total Tagihan</span>
+                <span style="font-weight: 800; font-size: 20px; color: var(--primary);">Rp 30.000</span>
+            </div>
+        </div>
+        <h3>Scan QRIS Resmi RT 05 / RW 02</h3>
+        <div class="qr-container">
+            <div style="display: flex; justify-content: space-between; width: 100%; font-size: 10px; font-weight: bold; color: var(--danger);">
+                <span>QRIS</span>
+                <span style="color: var(--text-muted); font-weight: normal;">NMID: ID1026573514140</span>
+            </div>
+            <div class="qr-code"><i class="fa-solid fa-qrcode" style="font-size: 80px; color: #ccc;"></i></div>
+            <div style="text-align: center; margin-top: 10px;">
+                <strong style="font-size: 14px;">RT 05 RW 02 KELURAHAN</strong>
+                <p style="font-size: 10px;">SIPAKAR Verified Merchant</p>
+            </div>
+        </div>
+        <div class="card">
+            <p style="font-size: 12px;">Nominal Transfer QRIS</p>
+            <h2 style="font-size: 22px; margin-bottom: 15px;">Rp 25.000</h2>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-outline" style="flex: 1;" onclick="copyNominal()"><i class="fa-regular fa-copy"></i> Salin Nominal</button>
+                <button class="btn btn-primary" style="flex: 1;" onclick="showAlert('QRIS berhasil diunduh!')"><i class="fa-solid fa-download"></i> Download QRIS</button>
+            </div>
+        </div>
+        <h3>Konfirmasi Pembayaran</h3>
+        <div class="card">
+            <p style="font-size: 13px; margin-bottom: 15px;">Sudah transfer atau scan QRIS? Unggah bukti transfer di bawah ini agar diverifikasi bendahara RT.</p>
+            <div class="upload-area" id="upload-area" onclick="simulateUpload()">
+                <i class="fa-solid fa-camera" id="upload-icon" style="font-size: 30px; color: var(--primary); margin-bottom: 10px;"></i>
+                <p id="upload-text" style="font-weight: 600; color: var(--primary); font-size: 14px;">Ketik untuk Ambil Foto / Upload Screenshot</p>
+                <p style="font-size: 11px; margin-top: 5px;">Format JPG, PNG, atau WEBP (Maks. 5 MB)</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Catatan Tambahan (Opsional)</label>
+                <input type="text" id="payment-note" class="form-input" placeholder="Cth: Sudah bayar via Gopay a/n Warga - Rumah">
+            </div>
+            <div style="background: #f8fbf9; padding: 12px; border-radius: 8px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 20px;">
+                <i class="fa-solid fa-circle-info" style="color: var(--text-muted); margin-top: 2px;"></i>
+                <p style="font-size: 11px; margin: 0;">Setelah dikirim, status menjadi <strong>"Pending - Menunggu Verifikasi Admin RT"</strong>. Admin akan memverifikasi dalam 1x24 jam.</p>
+            </div>
+            <button class="btn btn-primary" onclick="submitPayment()"><i class="fa-solid fa-paper-plane"></i> Kirim Bukti Pembayaran</button>
+        </div>
+    </main>
+
+    <!-- PENGADUAN -->
+    <main id="page-pengaduan">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+            <div>
+                <p style="font-size: 12px; font-weight: 600; color: var(--primary); text-transform: uppercase;">Layanan Terpadu RT 04</p>
+                <h1 style="font-size: 24px;">Pengaduan & Aspirasi</h1>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openModal()"><i class="fa-solid fa-plus"></i> Buat Baru</button>
+        </div>
+        <div class="card" style="background: white;">
+            <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;"><i class="fa-solid fa-chart-line text-primary"></i> Alur Transparansi Penanganan</h3>
+            <div class="stepper">
+                <div class="step done"><div class="step-circle"><i class="fa-solid fa-check"></i></div><span class="step-text">1. Dikirim</span></div>
+                <div class="step done"><div class="step-circle"><i class="fa-solid fa-check"></i></div><span class="step-text">2. Diterima</span></div>
+                <div class="step active"><div class="step-circle"><i class="fa-solid fa-wrench"></i></div><span class="step-text">3. Ditangani</span></div>
+                <div class="step"><div class="step-circle"><i class="fa-regular fa-circle-check"></i></div><span class="step-text">4. Selesai</span></div>
+            </div>
+        </div>
+        <div class="tabs">
+            <div class="tab active">Semua</div>
+            <div class="tab">Sedang Diproses (1)</div>
+            <div class="tab">Selesai (2)</div>
+        </div>
+        <div id="complaint-list">
+            <div class="complaint-card">
+                <div class="complaint-header">
+                    <span class="complaint-tag" style="background: #e3f2fd; color: #1976d2;">Infrastruktur & Sarpras</span>
+                    <span class="complaint-date">14 Sep 2026</span>
+                </div>
+                <span class="complaint-tag" style="background: var(--warning-bg); color: var(--warning); margin-bottom: 10px; display: inline-block;"><i class="fa-regular fa-clock"></i> Sedang Ditangani</span>
+                <h3 style="margin-bottom: 5px;">Lampu Penerangan Jalan Gang Melati Mati</h3>
+                <p style="font-size: 12px; margin-bottom: 10px;"><i class="fa-solid fa-location-dot"></i> Depan Rumah No. 15 Gang Melati</p>
+                <img src="https://images.unsplash.com/photo-1517646287270-a5a9ca602e5c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Lampu Jalan" class="complaint-img">
+                <div class="complaint-response">
+                    <strong style="font-size: 12px; display: block; margin-bottom: 5px;"><i class="fa-solid fa-reply text-primary"></i> Respon Pengurus RT</strong>
+                    <p style="font-size: 13px; font-style: italic; color: var(--text-main);">"Pak Bambang (Seksi Sarpras) sedang memesan bohlam LED pengganti, estimasi pemasangan sore ini pukul 16.00 WIB."</p>
+                </div>
+            </div>
+            <div class="complaint-card">
+                <div class="complaint-header">
+                    <span class="complaint-tag" style="background: #f3e5f5; color: #7b1fa2;">Kebersihan Lingkungan</span>
+                    <span class="complaint-date">2 Sep 2026</span>
+                </div>
+                <span class="complaint-tag" style="background: var(--success-bg); color: var(--success); margin-bottom: 10px; display: inline-block;"><i class="fa-solid fa-check"></i> Selesai</span>
+                <h3 style="margin-bottom: 5px;">Penumpukan Sampah Ranting Pasca Hujan Angin</h3>
+                <p style="font-size: 12px; margin-bottom: 10px;"><i class="fa-solid fa-location-dot"></i> Sudut Lapangan RT 04 / Blok B</p>
+                <div class="complaint-response" style="border-left-color: var(--success);">
+                    <strong style="font-size: 12px; display: block; margin-bottom: 5px;"><i class="fa-solid fa-reply text-success"></i> Respon Pengurus RT</strong>
+                    <p style="font-size: 13px; font-style: italic; color: var(--text-main);">"Telah diangkut oleh truk DLH kelurahan bersama karang taruna. Terima kasih atas laporannya."</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- UMKM -->
+    <main id="page-umkm">
+        <div style="margin-bottom: 20px;">
+            <h1 style="font-size: 24px;">Promosi Usaha & UMKM Warga</h1>
+            <p style="margin-top: 5px;">Dukung perekonomian tetangga kita! Berbagai usaha rumahan dan jasa dari warga RT 05 / RW 02.</p>
+        </div>
+        <div class="card" style="background: var(--primary-light); display: flex; justify-content: space-between; align-items: center; border: 1px solid #c8e6c9;">
+            <div>
+                <h3 style="margin: 0;">Punya Usaha Rumahan?</h3>
+                <p style="font-size: 12px; margin: 5px 0 0 0;">Daftarkan gratis untuk</p>
+            </div>
+            <button class="btn btn-primary btn-sm" style="width: auto;" onclick="showAlert('Form pendaftaran UMKM akan segera hadir!')">Daftar Usaha <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+        <div class="tabs">
+            <div class="tab active" onclick="filterUMKM('semua', this)">Semua Usaha</div>
+            <div class="tab" onclick="filterUMKM('kuliner', this)">Kuliner & Jajanan</div>
+            <div class="tab" onclick="filterUMKM('jasa', this)">Jasa Rumahan</div>
+        </div>
+        <div class="umkm-grid" id="umkm-list">
+            <div class="umkm-large-card umkm-item" data-kategori="kuliner">
+                <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Brownies" class="umkm-large-img">
+                <div class="umkm-large-content">
+                    <span class="complaint-tag" style="background: var(--primary-light); color: var(--primary); margin-bottom: 10px; display: inline-block;"><i class="fa-solid fa-utensils"></i> Kuliner Rumahan</span>
+                    <h2 style="margin-bottom: 10px;">Brownies Homemade Bu Siti</h2>
+                    <p style="margin-bottom: 15px;">Camilan rumahan lembut & higienis untuk menemani waktu santai keluarga. Menerima pesanan snack box rapat & arisan RT.</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; font-size: 12px; color: var(--text-muted);">
+                        <span><i class="fa-solid fa-location-dot"></i> Blok B No. 4, RT 05</span>
+                        <span><i class="fa-solid fa-clock"></i> Siap antar sekitar RT</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="showAlert('Mengarahkan ke WhatsApp Bu Siti...')"><i class="fa-brands fa-whatsapp"></i> Lihat Promosi & Kontak WA</button>
+                </div>
+            </div>
+            <div class="umkm-large-card umkm-item" data-kategori="jasa">
+                <img src="https://images.unsplash.com/photo-1581092921461-7031e4bf0e11?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Servis AC" class="umkm-large-img">
+                <div class="umkm-large-content">
+                    <span class="complaint-tag" style="background: var(--primary-light); color: var(--primary); margin-bottom: 10px; display: inline-block;"><i class="fa-solid fa-screwdriver-wrench"></i> Jasa Teknisi</span>
+                    <h2 style="margin-bottom: 10px;">Jasa Servis AC & Kelistrikan Mas Doni</h2>
+                    <p style="margin-bottom: 15px;">Teknisi berpengalaman ramah tetangga. Cuci AC, perbaikan korsleting, dan instalasi listrik rumah bergaransi.</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; font-size: 12px; color: var(--text-muted);">
+                        <span><i class="fa-solid fa-location-dot"></i> Gang Mawar No. 08, RT 05</span>
+                        <span><i class="fa-solid fa-clock"></i> Bisa dipanggil sewaktu-waktu</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="showAlert('Menghubungi WhatsApp Mas Doni...')"><i class="fa-solid fa-phone"></i> Hubungi Mas Doni</button>
+                </div>
+            </div>
+            <div class="umkm-large-card umkm-item" data-kategori="kuliner">
+                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Warung Sayur" class="umkm-large-img">
+                <div class="umkm-large-content">
+                    <span class="complaint-tag" style="background: var(--primary-light); color: var(--primary); margin-bottom: 10px; display: inline-block;"><i class="fa-solid fa-store"></i> Warung Pangan</span>
+                    <h2 style="margin-bottom: 10px;">Warung Sayur Segar Bu Dewi</h2>
+                    <p style="margin-bottom: 15px;">Sayuran segar langsung dari pasar induk setiap subuh, lauk pauk siap olah, dan bumbu dapur lengkap.</p>
+                    <div style="display: flex; gap: 10px; margin-bottom: 15px; font-size: 12px; color: var(--text-muted);">
+                        <span><i class="fa-solid fa-location-dot"></i> Pos Masuk RT 05</span>
+                        <span><i class="fa-solid fa-clock"></i> Buka Setiap Hari (05.30 - 12.00)</span>
+                    </div>
+                    <button class="btn btn-primary" onclick="showAlert('Mengarahkan ke WhatsApp Bu Dewi...')"><i class="fa-solid fa-motorcycle"></i> Pesan Antar ke Rumah</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- NOTIFIKASI -->
+    <main id="page-notifikasi">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1 style="font-size: 28px;">Notifikasi</h1>
+            <a href="#" onclick="markAllRead()" style="font-size: 13px; color: var(--primary); text-decoration: none; font-weight: 600;">Tandai semua dibaca</a>
+        </div>
+        <p style="margin-bottom: 20px;">Informasi terbaru seputar iuran dan kegiatan RT.</p>
+        <div class="notif-tabs">
+            <div class="tab active">Semua</div>
+            <div class="tab">Pembayaran</div>
+            <div class="tab">Pengumuman</div>
+        </div>
+        <h3 style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">Hari ini</h3>
+        <div class="notif-card">
+            <div class="notif-icon primary"><i class="fa-solid fa-wallet"></i></div>
+            <div class="notif-content" style="flex: 1;">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong style="font-size: 14px;">Pembayaran berhasil</strong>
+                    <span class="badge" style="position: static; font-size: 10px;">Baru</span>
+                </div>
+                <p style="margin-top: 5px;">Pembayaran iuran Kebersihan bulan September telah berhasil dikonfirmasi.</p>
+                <span class="notif-time">18:42</span>
+            </div>
+        </div>
+        <div class="notif-card">
+            <div class="notif-icon danger"><i class="fa-regular fa-bell"></i></div>
+            <div class="notif-content" style="flex: 1;">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong style="font-size: 14px;">Batas pembayaran iuran</strong>
+                    <span class="badge" style="position: static; font-size: 10px;">Baru</span>
+                </div>
+                <p style="margin-top: 5px;">Batas pembayaran iuran Kas RT bulan September adalah 30 September 2026.</p>
+                <span class="notif-time">10:15</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- PROFIL -->
+    <main id="page-profil">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <!-- Ini bagian Avatar dan Nama Profil -->
+            <div class="avatar" id="profile-avatar" style="width: 80px; height: 80px; margin: 0 auto 15px auto; font-size: 30px;">W</div>
+            <h2 id="profile-name">Nama Warga</h2>
+            <p>Warga RT 05 / RW 02</p>
+            <button class="btn btn-outline btn-sm" style="margin-top: 15px;" onclick="logout()">Keluar Akun</button>
+        </div>
+        <div class="card">
+            <h3>Informasi Akun</h3>
+            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 14px;">
+                <span>Nomor HP</span> <strong>0812-9844-xxxx</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color); font-size: 14px;">
+                <span>Blok / No</span> <strong>C No. 12</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px;">
+                <span>Status Warga</span> <strong class="text-success">Aktif</strong>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Pengaturan</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-color); cursor: pointer;" onclick="showAlert('Fitur ubah password akan segera hadir.')">
+                <span><i class="fa-solid fa-lock" style="width: 25px; color: var(--text-muted);"></i> Ubah Password</span>
+                <i class="fa-solid fa-chevron-right" style="color: #ccc;"></i>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px 0; cursor: pointer;" onclick="showAlert('Hubungi Admin RT untuk bantuan lebih lanjut.')">
+                <span><i class="fa-regular fa-circle-question" style="width: 25px; color: var(--text-muted);"></i> Bantuan & FAQ</span>
+                <i class="fa-solid fa-chevron-right" style="color: #ccc;"></i>
+            </div>
+        </div>
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav" id="bottom-nav" style="display: none;">
+        <a class="nav-item active" onclick="navigate('beranda')" id="nav-beranda"><i class="fa-solid fa-house"></i><span>Beranda</span></a>
+        <a class="nav-item" onclick="navigate('iuran')" id="nav-iuran"><i class="fa-solid fa-file-invoice-dollar"></i><span>Iuran</span></a>
+        <a class="nav-item" onclick="navigate('pengaduan')" id="nav-pengaduan"><i class="fa-solid fa-bullhorn"></i><span>Pengaduan</span></a>
+        <a class="nav-item" onclick="navigate('umkm')" id="nav-umkm"><i class="fa-solid fa-store"></i><span>UMKM</span></a>
+        <a class="nav-item" onclick="navigate('profil')" id="nav-profil"><i class="fa-regular fa-circle-user"></i><span>Profil</span></a>
+    </nav>
+
+</div>
+
+<!-- MODAL PENGADUAN -->
+<div class="modal-overlay" id="modal-pengaduan">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Buat Pengaduan Baru</h2>
+            <i class="fa-solid fa-xmark" style="font-size: 20px; cursor: pointer; color: #999;" onclick="closeModal()"></i>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Judul Aduan</label>
+            <input type="text" id="aduan-judul" class="form-input" placeholder="Cth: Lampu Jalan Mati">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select id="aduan-kategori" class="form-input">
+                <option value="Infrastruktur">Infrastruktur & Sarpras</option>
+                <option value="Kebersihan">Kebersihan Lingkungan</option>
+                <option value="Keamanan">Keamanan</option>
+                <option value="Fasilitas">Fasilitas Umum</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Lokasi</label>
+            <input type="text" id="aduan-lokasi" class="form-input" placeholder="Cth: Depan Rumah No. 15 Gang Melati">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Deskripsi Singkat</label>
+            <textarea id="aduan-deskripsi" class="form-input" rows="3" placeholder="Jelaskan detail kendala..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitComplaint()" style="margin-top: 10px;">Kirim Aduan</button>
+    </div>
+</div>
+
+<script>
+    // STATE GLOBAL (Tanpa localStorage agar 100% jalan di Colab/Iframe)
+    let currentUser = 'Warga';
+    let uploadedFile = false;
+
+    // Jalankan saat halaman dimuat
+    window.addEventListener('DOMContentLoaded', () => {
+        // Pastikan halaman login yang tampil pertama
+        navigate('login');
+        
+        // Handle Enter key
+        document.getElementById('login-name').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') login();
+        });
+    });
+
+    // --- NAVIGASI ---
+    function navigate(pageId) {
+        // Sembunyikan semua main
+        document.querySelectorAll('main').forEach(main => main.classList.remove('active'));
+        
+        // Tampilkan main target
+        const target = document.getElementById('page-' + pageId);
+        if(target) target.classList.add('active');
+
+        // Atur header & bottom nav
+        const header = document.getElementById('main-header');
+        const bottomNav = document.getElementById('bottom-nav');
+        
+        if (pageId === 'login' || pageId === 'daftar') {
+            header.style.display = 'none';
+            bottomNav.style.display = 'none';
+        } else {
+            header.style.display = 'flex';
+            bottomNav.style.display = 'flex';
+        }
+
+        // Update active nav
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        const activeNav = document.getElementById('nav-' + pageId);
+        if(activeNav) activeNav.classList.add('active');
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- LOGIN (TANPA SETTIMEOUT / LANGSUNG) ---
+    function login() {
+        const nameInput = document.getElementById('login-name').value.trim();
+        
+        if(!nameInput) {
+            showAlert('Silakan masukkan nama Anda terlebih dahulu!');
+            return;
+        }
+        
+        // Simpan nama ke variabel global
+        currentUser = nameInput;
+        
+        // Update semua teks UI dengan nama baru
+        updateUIWithUser();
+        
+        // Pindah ke beranda seketika
+        navigate('beranda');
+        showAlert(`Berhasil masuk! Selamat datang, ${currentUser}.`);
+    }
+
+    function register() {
+        const nameInput = document.getElementById('reg-name').value.trim();
+        if(!nameInput) {
+            showAlert('Silakan isi nama lengkap Anda!');
+            return;
+        }
+        
+        currentUser = nameInput.split(' ')[0]; // Ambil nama depan saja jika ada spasi
+        updateUIWithUser();
+        navigate('beranda');
+        showAlert('Pendaftaran berhasil! Selamat datang di SIPAKAR.');
+    }
+
+    function logout() {
+        document.getElementById('login-name').value = '';
+        document.getElementById('login-pass').value = '';
+        navigate('login');
+        showAlert('Anda telah keluar dari akun.');
+    }
+
+    function updateUIWithUser() {
+        // Update semua elemen teks yang menampilkan nama
+        const nameDisplay = document.getElementById('user-name-display');
+        const profileName = document.getElementById('profile-name');
+        const headerAvatar = document.getElementById('header-avatar');
+        const profileAvatar = document.getElementById('profile-avatar');
+        
+        // HANYA MENAMPILKAN NAMA YANG DIINPUT, TANPA TAMBAHAN "PRATAMA"
+        if(nameDisplay) nameDisplay.innerText = currentUser;
+        if(profileName) profileName.innerText = currentUser;
+        
+        // Avatar mengambil huruf pertama
+        if(headerAvatar) headerAvatar.innerText = currentUser.charAt(0).toUpperCase();
+        if(profileAvatar) profileAvatar.innerText = currentUser.charAt(0).toUpperCase();
+    }
+
+    // --- FITUR IURAN ---
+    function copyNominal() {
+        navigator.clipboard.writeText("25000").then(() => {
+            showAlert('Nominal Rp 25.000 berhasil disalin!');
+        }).catch(() => {
+            showAlert('Gagal menyalin nominal.');
+        });
+    }
+
+    function simulateUpload() {
+        const area = document.getElementById('upload-area');
+        const icon = document.getElementById('upload-icon');
+        const text = document.getElementById('upload-text');
+        
+        if(!uploadedFile) {
+            uploadedFile = true;
+            area.classList.add('active');
+            icon.className = 'fa-solid fa-circle-check';
+            icon.style.color = 'var(--success)';
+            text.innerText = 'Bukti Transfer Berhasil Diunggah!';
+            text.style.color = 'var(--success)';
+        } else {
+            uploadedFile = false;
+            area.classList.remove('active');
+            icon.className = 'fa-solid fa-camera';
+            icon.style.color = 'var(--primary)';
+            text.innerText = 'Ketik untuk Ambil Foto / Upload Screenshot';
+            text.style.color = 'var(--primary)';
+        }
+    }
+
+    function submitPayment() {
+        if(!uploadedFile) {
+            showAlert('Harap unggah bukti transfer terlebih dahulu!');
+            return;
+        }
+        showAlert('Bukti pembayaran berhasil dikirim! Menunggu verifikasi Admin RT.');
+        
+        // Reset form
+        uploadedFile = false;
+        const area = document.getElementById('upload-area');
+        const icon = document.getElementById('upload-icon');
+        const text = document.getElementById('upload-text');
+        area.classList.remove('active');
+        icon.className = 'fa-solid fa-camera';
+        icon.style.color = 'var(--primary)';
+        text.innerText = 'Ketik untuk Ambil Foto / Upload Screenshot';
+        text.style.color = 'var(--primary)';
+        document.getElementById('payment-note').value = '';
+    }
+
+    // --- FITUR PENGADUAN ---
+    function openModal() {
+        document.getElementById('modal-pengaduan').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-pengaduan').classList.remove('active');
+    }
+
+    function submitComplaint() {
+        const judul = document.getElementById('aduan-judul').value;
+        const kategori = document.getElementById('aduan-kategori').value;
+        const lokasi = document.getElementById('aduan-lokasi').value;
+        const deskripsi = document.getElementById('aduan-deskripsi').value;
+
+        if(!judul || !lokasi) {
+            showAlert('Judul dan Lokasi wajib diisi!');
+            return;
+        }
+
+        const date = new Date();
+        const formattedDate = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+        const newCard = document.createElement('div');
+        newCard.className = 'complaint-card';
+        newCard.innerHTML = `
+            <div class="complaint-header">
+                <span class="complaint-tag" style="background: #e3f2fd; color: #1976d2;">${kategori}</span>
+                <span class="complaint-date">${formattedDate}</span>
+            </div>
+            <span class="complaint-tag" style="background: var(--warning-bg); color: var(--warning); margin-bottom: 10px; display: inline-block;"><i class="fa-regular fa-clock"></i> Menunggu Diproses</span>
+            <h3 style="margin-bottom: 5px;">${judul}</h3>
+            <p style="font-size: 12px; margin-bottom: 10px;"><i class="fa-solid fa-location-dot"></i> ${lokasi}</p>
+            <p style="font-size: 13px; margin-bottom: 15px;">${deskripsi || 'Tidak ada deskripsi tambahan.'}</p>
+            <div class="complaint-response" style="border-left-color: var(--warning); background: var(--warning-bg);">
+                <strong style="font-size: 12px; display: block; margin-bottom: 5px; color: var(--warning);"><i class="fa-solid fa-spinner"></i> Menunggu Respon</strong>
+                <p style="font-size: 13px; font-style: italic; color: var(--text-main);">Aduan Anda telah diteruskan ke pengurus RT. Mohon tunggu tanggapan.</p>
+            </div>
+        `;
+
+        document.getElementById('complaint-list').prepend(newCard);
+        
+        // Reset Form
+        document.getElementById('aduan-judul').value = '';
+        document.getElementById('aduan-lokasi').value = '';
+        document.getElementById('aduan-deskripsi').value = '';
+        
+        closeModal();
+        showAlert('Aduan berhasil dikirim!');
+    }
+
+    // --- FITUR UMKM ---
+    function filterUMKM(kategori, element) {
+        const items = document.querySelectorAll('.umkm-item');
+        items.forEach(item => {
+            if(kategori === 'semua' || item.getAttribute('data-kategori') === kategori) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        const tabs = document.querySelectorAll('#page-umkm .tab');
+        tabs.forEach(t => t.classList.remove('active'));
+        element.classList.add('active');
+    }
+
+    // --- FITUR NOTIFIKASI ---
+    function markAllRead() {
+        document.getElementById('notif-badge').style.display = 'none';
+        document.querySelectorAll('.notif-card .badge').forEach(b => b.style.display = 'none');
+        showAlert('Semua notifikasi telah ditandai dibaca.');
+    }
+
+    // --- TOAST NOTIFICATION ---
+    function showAlert(message) {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 12px 24px; border-radius: 8px;
+            font-size: 14px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            opacity: 0; transition: opacity 0.3s; text-align: center; width: max-content; max-width: 90%;
+        `;
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.style.opacity = '1', 10);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
